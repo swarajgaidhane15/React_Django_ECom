@@ -6,8 +6,8 @@ import Base from "../core/Base";
 
 const Signup = () => {
   const [values, setValues] = useState({
-    email: "clint@gmail.com",
-    password: "123456",
+    email: "",
+    password: "",
     error: "",
     success: false,
   });
@@ -26,8 +26,8 @@ const Signup = () => {
     signin({ email, password }).then((data) => {
       console.log(data);
       if (data.token) {
-        let session_token = data.token;
-        authenticate(session_token, () => {
+        // let session_token = data.token;
+        authenticate(data, () => {
           console.log("Token Added");
           setValues({
             ...values,

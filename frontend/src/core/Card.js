@@ -1,28 +1,41 @@
-import React from "react";
+import React, { useState } from "react";
 import ImageHelper from "./helper/ImageHelper";
 import { Redirect } from "react-router-dom";
 import { addItemToCart, removeItemFromCart } from "./helper/CartHelper";
+import { isAuthenticated } from "../auth/helper/index";
 
-// TODO: Deal with this later
-const isAuthenticated = true;
+const Card = ({
+  product,
+  addtoCart = true,
+  removefromCart = false,
+  reload = undefined,
+  setReload = (f) => f,
+}) => {
+  const [redirect, setRedirect] = useState(false);
 
-const Card = ({ product, addtoCart = true, removefromCart = true }) => {
   const addToCart = () => {
-    if (isAuthenticated) {
+    setRedirect(true);
+    if (isAuthenticated()) {
       addItemToCart(product, () => {});
       console.log("Added to cart");
-    } else console.log("Login first !");
+    } else {
+      console.log("Login first !");
+    }
   };
 
-  const getRedirect = (redirect) => {
-    if (redirect) {
+  const getRedirect = () => {
+    if (isAuthenticated() && redirect) {
       return <Redirect to="/cart" />;
+    }
+    if (!isAuthenticated() && redirect) {
+      return <Redirect to="/signin" />;
     }
   };
 
   const removeFromCart = (id) => {
     if (isAuthenticated) {
       removeItemFromCart(id);
+      setReload(!reload);
       console.log("Removed from cart :)");
     } else console.log("Login first !");
   };
@@ -31,6 +44,7 @@ const Card = ({ product, addtoCart = true, removefromCart = true }) => {
     <div className="card text-white bg-dark border border-info ">
       <div className="card-header lead">{product.name}</div>
       <div className="card-body">
+        {getRedirect()}
         <ImageHelper product={product} />
         <p className="lead bg-success font-weight-normal text-wrap mt-2 px-2">
           {product.description}

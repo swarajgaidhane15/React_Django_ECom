@@ -1,10 +1,11 @@
 from rest_framework import viewsets
 from django.http import JsonResponse
 from django.contrib.auth import get_user_model
-from django.views.decorators.csrf import csrf_exempt
-
 from .serializers import OrderSerializer
 from .models import Order
+from django.views.decorators.csrf import csrf_exempt
+
+# Create your views here.
 
 
 def validate_user_session(id, token):
@@ -21,7 +22,7 @@ def validate_user_session(id, token):
 @csrf_exempt
 def add(request, id, token):
     if not validate_user_session(id, token):
-        return JsonResponse({"error": "Please login first", "code": "1"})
+        return JsonResponse({'error': 'Please re-login', 'code': '1'})
 
     if request.method == "POST":
         user_id = id
@@ -29,22 +30,19 @@ def add(request, id, token):
         amount = request.POST['amount']
         products = request.POST['products']
 
-        total_pros = len(products.split(',')[:-1])
+        total_pro = len(products.split(',')[:-1])
 
         UserModel = get_user_model()
+
         try:
             user = UserModel.objects.get(pk=user_id)
         except UserModel.DoesNotExist:
-            return JsonResponse({'error': "user does not exists"})
+            return JsonResponse({'error': 'User does not exist'})
 
-        order = Order(user=user,
-                      product_name=products,
-                      total_products=total_pros,
-                      transaction_id=transaction_id,
-                      total_amount=amount
-                      )
-        order.save()
-        return JsonResponse({'success': True, 'order': order, 'error': False, 'msg': "Order placed successfully"})
+        ordr = Order(user=user, product_names=products, total_products=total_pro,
+                     transaction_id=transaction_id, total_amount=amount)
+        ordr.save()
+        return JsonResponse({'success': True, 'error': False, 'msg': 'Order placed Successfully'})
 
 
 class OrderViewSet(viewsets.ModelViewSet):
